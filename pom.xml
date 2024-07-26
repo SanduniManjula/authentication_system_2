@@ -48,16 +48,7 @@
     </dependency>
 
   
-    <dependency>
-      <groupId>library</groupId>
-      <artifactId>bookstore</artifactId>
-      <version>0.0.1-SNAPSHOT</version>
-    </dependency>
-    <dependency>
-    	<groupId>AuthenticationSystem</groupId>
-    	<artifactId>authentication.system</artifactId>
-    	<version>0.0.1-SNAPSHOT</version>
-    </dependency>
+
   </dependencies>
 
   <build>

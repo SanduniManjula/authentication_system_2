@@ -1,4 +1,5 @@
 package authentication.controller;
+
 import authentication.exception.UserAlreadyExistsException;
 import authentication.model.Userz;
 import authentication.service.UserService;
@@ -11,12 +12,15 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/auth")
 public class AuthenticationController {
-
 	@Autowired
 	private UserService userDetailService;
+
 	@Autowired
 	private JwtUtil jwtUtil;
 
@@ -24,32 +28,33 @@ public class AuthenticationController {
 	private AuthenticationManager authenticationManager;
 
 	@PostMapping("/signup")
-	public ResponseEntity<String> signup(@RequestBody Userz users) {
+	public ResponseEntity<Map<String, String>> signup(@RequestBody Userz users) {
 		try {
 			userDetailService.saveUser(users);
 
-			UsernamePasswordAuthenticationToken authenticationToken =
-					new UsernamePasswordAuthenticationToken(users.getUsername(), users.getPassword());
-			Authentication authentication = authenticationManager.authenticate(authenticationToken);
-			SecurityContextHolder.getContext().setAuthentication(authentication);
+//			UsernamePasswordAuthenticationToken authenticationToken =
+//					new UsernamePasswordAuthenticationToken(users.getUsername(), users.getPassword());
+//			Authentication authentication = authenticationManager.authenticate(authenticationToken);
+//			SecurityContextHolder.getContext().setAuthentication(authentication);
 
 			final String jwt = jwtUtil.generateToken(users.getUsername());
+			Map<String, String> response = new HashMap<>();
+			response.put("jwt_token", jwt);
 
-			return ResponseEntity.ok("User registered and logged in successfully. Token: " + jwt);
+			return ResponseEntity.ok(response);
 
 		} catch (UserAlreadyExistsException exception) {
-			final String jwt = jwtUtil.generateToken(users.getUsername());
-			return ResponseEntity.badRequest().body("Username already exists. Token: " + jwt);
+			exception.printStackTrace();
+			return ResponseEntity.badRequest().body(Map.of("error", "Username already exists."));
 		} catch (Exception exception) {
-			return ResponseEntity.internalServerError().body("Internal server error. No Token generated.");
+			exception.printStackTrace();
+			return ResponseEntity.internalServerError().body(Map.of("error", "Internal server error. No Token generated."));
 		}
-
 	}
 
 	@PostMapping("/login")
-	public ResponseEntity<String> login(@RequestBody Userz users) {
+	public ResponseEntity<Map<String, String>> login(@RequestBody Userz users) {
 		System.out.println("========= REACHED HERE ===========");
-
 
 		try {
 			UsernamePasswordAuthenticationToken authenticationToken =
@@ -58,19 +63,17 @@ public class AuthenticationController {
 			SecurityContextHolder.getContext().setAuthentication(authentication);
 
 			final String jwt = jwtUtil.generateToken(users.getUsername());
+			Map<String, String> response = new HashMap<>();
+			response.put("jwt_token", jwt);
 
-			return ResponseEntity.ok("User " + users.getUsername() + " logged in successfully. Token: " + jwt);
+			return ResponseEntity.ok(response);
 		} catch (Exception e) {
-			return ResponseEntity.status(401).body("Invalid username or password");
+			return ResponseEntity.status(401).body(Map.of("error", "Invalid username or password"));
 		}
 	}
 
-
-
-
 	@ExceptionHandler(UserAlreadyExistsException.class)
-	public ResponseEntity<String> handleUserAlreadyExistsException(UserAlreadyExistsException exception) {
-		return ResponseEntity.badRequest().body(exception.getMessage());
+	public ResponseEntity<Map<String, String>> handleUserAlreadyExistsException(UserAlreadyExistsException exception) {
+		return ResponseEntity.badRequest().body(Map.of("error", exception.getMessage()));
 	}
-
 }

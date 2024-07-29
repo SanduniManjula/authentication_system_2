@@ -52,7 +52,7 @@ public class Security extends WebSecurityConfigurerAdapter {
 
                 .and()
                 .formLogin()
-                .loginProcessingUrl("/api/auth/login")
+               // .loginProcessingUrl("/api/auth/login")
                 .successHandler(successHandler)
                 .and()
                 .sessionManagement()

@@ -36,11 +36,14 @@ public class AuthenticationController {
 			final String jwt = jwtUtil.generateToken(users.getUsername());
 
 			return ResponseEntity.ok("User registered and logged in successfully. Token: " + jwt);
+
 		} catch (UserAlreadyExistsException exception) {
-			return ResponseEntity.badRequest().body("Username already exists");
+			final String jwt = jwtUtil.generateToken(users.getUsername());
+			return ResponseEntity.badRequest().body("Username already exists. Token: " + jwt);
 		} catch (Exception exception) {
-			return ResponseEntity.internalServerError().body("Internal server error");
+			return ResponseEntity.internalServerError().body("Internal server error. No Token generated.");
 		}
+
 	}
 
 	@PostMapping("/login")
@@ -61,6 +64,10 @@ public class AuthenticationController {
 			return ResponseEntity.status(401).body("Invalid username or password");
 		}
 	}
+
+
+
+
 	@ExceptionHandler(UserAlreadyExistsException.class)
 	public ResponseEntity<String> handleUserAlreadyExistsException(UserAlreadyExistsException exception) {
 		return ResponseEntity.badRequest().body(exception.getMessage());

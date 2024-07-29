@@ -1,4 +1,5 @@
 package authentication.security;
+import authentication.filter.JwtRequestFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Bean;
@@ -6,7 +7,10 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
 import authentication.handler.CustomAuthenticationSuccessHandler;
 import org.springframework.security.authentication.AuthenticationManager;
 
@@ -22,6 +26,8 @@ public class Security extends WebSecurityConfigurerAdapter {
     @Autowired
     private CustomAuthenticationSuccessHandler successHandler;
 
+    @Autowired
+    private JwtRequestFilter jwtRequestFilter;
 
 	 @Autowired
      public void setService(UserService userService) {
@@ -43,13 +49,18 @@ public class Security extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers("/api/auth/signup", "/api/auth/login").permitAll()
                 .anyRequest().authenticated()
+
                 .and()
                 .formLogin()
-//                .loginProcessingUrl("/api/auth/login").permitAll()
-//                .successHandler(successHandler)
-                .permitAll();
-              // .defaultSuccessUrl("/home", true)
-                // .and()
+                .loginProcessingUrl("/api/auth/login")
+                .successHandler(successHandler)
+                .and()
+                .sessionManagement()
+                .sessionFixation().none()
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+                http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
+             // .defaultSuccessUrl("/home", true)
+             // .and()
              //  .logout();
                
     }

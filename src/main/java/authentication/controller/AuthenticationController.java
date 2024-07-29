@@ -1,19 +1,15 @@
 package authentication.controller;
-
 import authentication.exception.UserAlreadyExistsException;
 import authentication.model.Userz;
 import authentication.service.UserService;
+import authentication.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -21,6 +17,8 @@ public class AuthenticationController {
 
 	@Autowired
 	private UserService userDetailService;
+	@Autowired
+	private JwtUtil jwtUtil;
 
 	@Autowired
 	private AuthenticationManager authenticationManager;
@@ -35,7 +33,9 @@ public class AuthenticationController {
 			Authentication authentication = authenticationManager.authenticate(authenticationToken);
 			SecurityContextHolder.getContext().setAuthentication(authentication);
 
-			return ResponseEntity.ok("User registered and logged in successfully");
+			final String jwt = jwtUtil.generateToken(users.getUsername());
+
+			return ResponseEntity.ok("User registered and logged in successfully. Token: " + jwt);
 		} catch (UserAlreadyExistsException exception) {
 			return ResponseEntity.badRequest().body("Username already exists");
 		} catch (Exception exception) {
@@ -54,14 +54,16 @@ public class AuthenticationController {
 			Authentication authentication = authenticationManager.authenticate(authenticationToken);
 			SecurityContextHolder.getContext().setAuthentication(authentication);
 
-			return ResponseEntity.ok("User " + users.getUsername() + " logged in successfully");
+			final String jwt = jwtUtil.generateToken(users.getUsername());
+
+			return ResponseEntity.ok("User " + users.getUsername() + " logged in successfully. Token: " + jwt);
 		} catch (Exception e) {
 			return ResponseEntity.status(401).body("Invalid username or password");
 		}
 	}
-
 	@ExceptionHandler(UserAlreadyExistsException.class)
 	public ResponseEntity<String> handleUserAlreadyExistsException(UserAlreadyExistsException exception) {
 		return ResponseEntity.badRequest().body(exception.getMessage());
 	}
+
 }

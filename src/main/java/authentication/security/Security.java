@@ -27,7 +27,7 @@ public class Security extends WebSecurityConfigurerAdapter {
     private CustomAuthenticationSuccessHandler successHandler;
 
     @Autowired
-    private JwtRequestFilter jwtRequestFilter;
+    public JwtRequestFilter jwtRequestFilter;
 
 	 @Autowired
      public void setService(UserService userService) {
@@ -47,14 +47,14 @@ public class Security extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf().disable()
                 .authorizeRequests()
-                .antMatchers("/api/auth/signup", "/api/auth/login").permitAll()
+                .antMatchers("/api/auth/signup", "/api/auth/login", "/api/auth/refresh").permitAll()
                 .anyRequest().authenticated()
 
                 .and()
-                .formLogin()
+              //  .formLogin().
                // .loginProcessingUrl("/api/auth/login")
-                .successHandler(successHandler)
-                .and()
+               // .successHandler(successHandler)
+              //  .and()
                 .sessionManagement()
                 .sessionFixation().none()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS);

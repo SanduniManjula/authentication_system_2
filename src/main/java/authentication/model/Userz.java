@@ -17,6 +17,9 @@ public class Userz implements UserDetails {
     @Column(nullable = false)
     private String password;
 
+   @Column(name = "refresh_token")
+    private String refreshToken;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return Collections.emptyList(); 
@@ -59,6 +62,14 @@ public class Userz implements UserDetails {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getRefreshToken() {
+        return refreshToken;
+    }
+
+    public void setRefreshToken(String refreshToken) {
+        this.refreshToken = refreshToken;
     }
     
 }

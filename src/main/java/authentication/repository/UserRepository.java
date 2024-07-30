@@ -1,10 +1,9 @@
 package authentication.repository;
 
-import java.util.Optional;
-
+import authentication.model.Userz;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import authentication.model.Userz;
+import java.util.Optional;
 
 
 
@@ -14,9 +13,8 @@ import authentication.model.Userz;
 
 		Optional<Userz> findByUsername(String username);
 
-		
 
-		
+		Optional<Userz> findByRefreshToken(String refreshToken);
 	}
 
 	

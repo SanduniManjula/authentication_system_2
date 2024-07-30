@@ -4,17 +4,18 @@ import authentication.exception.UserAlreadyExistsException;
 import authentication.model.Userz;
 import authentication.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class UserService implements UserDetailsService {
@@ -64,5 +65,15 @@ public class UserService implements UserDetailsService {
         }
 
         return user.get();
+    }
+    public String generateRefreshToken(Userz user) {
+        String refreshToken = UUID.randomUUID().toString();
+        user.setRefreshToken(refreshToken);
+        userRepository.save(user);
+        return refreshToken;
+    }
+
+    public Optional<Userz> findByRefreshToken(String refreshToken) {
+        return userRepository.findByRefreshToken(refreshToken);
     }
 }
